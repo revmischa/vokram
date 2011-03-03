@@ -7,13 +7,15 @@ http://code.activestate.com/recipes/194364-the-markov-chain-algorithm/
 """
 
 import os
-import pickle
 import random
 import sys
 from collections import defaultdict
 
 
-def markov(model, length, start_key=None):
+##############################################################################
+# Basic interface
+##############################################################################
+def markov_chain(model, length, start_key=None):
     """Generates a Markov chain based on the given model with the given word
     count."""
     chain = []
@@ -24,6 +26,20 @@ def markov(model, length, start_key=None):
         key = key[1:] + (x,)
     return chain
 
+def build_model(xs, n=2):
+    """Builds a model of the given sequence using n-grams of size n. The model
+    is a dict mapping n-gram keys to lists of items appearing immediately
+    after those n-grams."""
+    model = defaultdict(list)
+    for ngram in gen_ngrams(xs, n+1):
+        key, item = ngram[:-1], ngram[-1]
+        model[key].append(item)
+    return dict(model)
+
+
+##############################################################################
+# Word-based interface
+##############################################################################
 def markov_words(model, length, start_key=None):
     """Generates a Markov chain of the given length. Attempts to be
     intelligent about generating chains made up of what (hopefully) look like
@@ -46,7 +62,7 @@ def markov_words(model, length, start_key=None):
 
     # Make sure our chain seems to end at the end of a sentence, by dropping
     # any dangling words after the end of the last sentence in the chain.
-    chain = markov(model, length, start_key)
+    chain = markov_chain(model, length, start_key)
     if chain[-1][-1] not in sentence_end:
         for i in xrange(length-1, -1, -1):
             if chain[i][-1] in sentence_end:
@@ -59,23 +75,15 @@ def markov_words(model, length, start_key=None):
     else:
         return ' '.join(chain)
 
-
-
-def build_model(xs, n=2):
-    """Builds a model of the given sequence using n-grams of size n. The model
-    is a dict mapping n-gram keys to lists of items appearing immediately
-    after those n-grams."""
-    model = defaultdict(list)
-    for ngram in gen_ngrams(xs, n+1):
-        key, item = ngram[:-1], ngram[-1]
-        model[key].append(item)
-    return dict(model)
-
 def build_word_model(corpus, n=2):
     """A special-case of build_model that knows how to build a model based on
     words from a corpus given as a string or a file-like object."""
     return build_model(gen_words(corpus), n=n)
 
+
+##############################################################################
+# Utility functions
+##############################################################################
 def gen_ngrams(xs, n=2):
     """Yields n-grams from the given sequence. Assumes len(xs) >= n."""
     it = iter(xs)
