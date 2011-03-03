@@ -24,27 +24,29 @@ def markov(model, length, start_key=None):
         key = key[1:] + (x,)
     return chain
 
-def build_model(xs, n=2, nil=None):
+def build_model(xs, n=2):
     """Builds a model of the given sequence using n-grams of size n. The model
     is a dict mapping n-gram keys to lists of items appearing immediately
-    after those n-grams. Missing values will be filled in with the given nil
-    value."""
+    after those n-grams."""
     model = defaultdict(list)
-    # Start with a dummy key for the first word. After n iterations, the key
-    # will contain all valid words from the corpus.
-    key = tuple(nil for _ in xrange(n))
-    for x in xs:
-        model[key].append(x)
-        key = key[1:] + (x,)
-    # Make sure the last key has an entry
-    model[key].append(nil)
-    # Return normal dict, instead of a defaultdict object
+    for ngram in gen_ngrams(xs, n+1):
+        key, item = ngram[:-1], ngram[-1]
+        model[key].append(item)
     return dict(model)
 
 def build_word_model(corpus, n=2):
     """A special-case of build_model that knows how to build a model based on
     words from a corpus given as a string or a file-like object."""
-    return build_model(gen_words(corpus), n=n, nil='')
+    return build_model(gen_words(corpus), n=n)
+
+def gen_ngrams(xs, n=2):
+    """Yields n-grams from the given sequence. Assumes len(xs) >= n."""
+    it = iter(xs)
+    gram = tuple(it.next() for _ in xrange(n))
+    yield gram
+    for x in xs:
+        gram = gram[1:] + (x,)
+        yield gram
 
 def gen_words(corpus):
     """Yields each word from the given corpus, which can be either a string or
