@@ -24,6 +24,43 @@ def markov(model, length, start_key=None):
         key = key[1:] + (x,)
     return chain
 
+def markov_words(model, length, start_key=None):
+    """Generates a Markov chain of the given length. Attempts to be
+    intelligent about generating chains made up of what (hopefully) look like
+    complete sentences."""
+
+    sentence_end = ('.', '!', '?', '"', "'")
+
+    # Find a start key that (hopefully) indicates the end of a sentence, which
+    # will make it more likely that our chain will start with a word from the
+    # beginning of a sentence.
+    if start_key is None:
+        keys = model.keys()
+        key = random.choice(keys)
+        # Making sure the key ends in a period (instead of anything in
+        # sentence_end) seems to yield better results at the start of the
+        # chain.
+        while not key[-1][-1] == '.':
+            key = random.choice(keys)
+        start_key = key
+
+    # Make sure our chain seems to end at the end of a sentence, by dropping
+    # any dangling words after the end of the last sentence in the chain.
+    chain = markov(model, length, start_key)
+    if chain[-1][-1] not in sentence_end:
+        for i in xrange(length-1, -1, -1):
+            if chain[i][-1] in sentence_end:
+                break
+        chain = chain[:i+1]
+
+    # Make sure we've got a reasonable-sized chain.
+    if len(chain) < 4:
+        return markov_words(model, length)
+    else:
+        return ' '.join(chain)
+
+
+
 def build_model(xs, n=2):
     """Builds a model of the given sequence using n-grams of size n. The model
     is a dict mapping n-gram keys to lists of items appearing immediately
