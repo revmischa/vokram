@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 A simple, generic implementation of Markov chains in Python, with some
 helpers for generating chains of words.
@@ -16,8 +17,8 @@ from collections import defaultdict
 # Basic interface
 ##############################################################################
 def markov_chain(model, length, start_key=None):
-    """Generates a Markov chain based on the given model with the given word
-    count."""
+    """Generates a Markov chain based on the given model with the given
+    length."""
     chain = []
     key = start_key or random.choice(model.keys())
     for _ in xrange(length):
@@ -103,11 +104,16 @@ def gen_words(corpus):
             yield word
 
 if __name__ == '__main__':
+    usage = """%s corpus [length]""" % sys.argv[0]
     try:
-        length = int(sys.argv[-1])
-    except ValueError:
-        length = 30
-    model = build_word_model(sys.stdin)
-    chain = markov(model, length)
-    for item in chain:
-        print item,
+        corpus = sys.argv[1]
+    except IndexError:
+        print usage
+        sys.exit(1)
+    else:
+        try:
+            length = int(sys.argv[2])
+        except (IndexError, ValueError):
+            length = 30
+        model = build_word_model(open(corpus))
+        print markov_words(model, length)
