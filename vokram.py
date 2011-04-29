@@ -14,6 +14,9 @@ import sys
 from collections import defaultdict
 
 
+DEFAULT_NGRAM_SIZE = 2
+
+
 ##############################################################################
 # Basic interface
 ##############################################################################
@@ -29,7 +32,7 @@ def markov_chain(model, length, start_key=None):
         key = key[1:] + (x,)
     return chain
 
-def build_model(xs, n=3):
+def build_model(xs, n=DEFAULT_NGRAM_SIZE):
     """Builds a model of the given sequence using n-grams of size n. The model
     is a dict mapping n-gram keys to lists of items appearing immediately
     after those n-grams.
@@ -82,7 +85,7 @@ def markov_words(model, length, start_key=None):
     else:
         return ' '.join(chain)
 
-def build_word_model(corpus, n=2):
+def build_word_model(corpus, n=DEFAULT_NGRAM_SIZE):
     """A special-case of build_model that knows how to build a model based on
     words from a corpus given as a string or a file-like object.
     """
@@ -92,7 +95,7 @@ def build_word_model(corpus, n=2):
 ##############################################################################
 # Utility functions
 ##############################################################################
-def gen_ngrams(xs, n=2):
+def gen_ngrams(xs, n=DEFAULT_NGRAM_SIZE):
     """Yields n-grams from the given sequence. Assumes len(xs) >= n."""
     it = iter(xs)
     gram = tuple(it.next() for _ in xrange(n))
@@ -124,7 +127,7 @@ if __name__ == '__main__':
             length = int(sys.argv[2])
         except (IndexError, ValueError):
             length = 30
-        model = build_word_model(open(corpus), n=2)
+        model = build_word_model(open(corpus))
         try:
             print markov_words(model, length)
         except RuntimeError, e:
