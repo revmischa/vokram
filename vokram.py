@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 """
 A simple, generic implementation of Markov chains in Python, with some
 helpers for generating chains of words.
@@ -17,8 +18,9 @@ from collections import defaultdict
 # Basic interface
 ##############################################################################
 def markov_chain(model, length, start_key=None):
-    """Generates a Markov chain based on the given model with the given
-    length."""
+    """Generates a Markov chain based on the given model with approximately
+    the given length.
+    """
     chain = []
     key = start_key or random.choice(model.keys())
     for _ in xrange(length):
@@ -27,10 +29,11 @@ def markov_chain(model, length, start_key=None):
         key = key[1:] + (x,)
     return chain
 
-def build_model(xs, n=2):
+def build_model(xs, n=3):
     """Builds a model of the given sequence using n-grams of size n. The model
     is a dict mapping n-gram keys to lists of items appearing immediately
-    after those n-grams."""
+    after those n-grams.
+    """
     model = defaultdict(list)
     for ngram in gen_ngrams(xs, n+1):
         key, item = ngram[:-1], ngram[-1]
@@ -44,8 +47,11 @@ def build_model(xs, n=2):
 def markov_words(model, length, start_key=None):
     """Generates a Markov chain of the given length. Attempts to be
     intelligent about generating chains made up of what (hopefully) look like
-    complete sentences."""
+    complete sentences.
+    """
 
+    # An overly-simplistic heuristic to use to try to generate complete
+    # sentences
     sentence_end = ('.', '!', '?', '"', "'")
 
     # Find a start key that (hopefully) indicates the end of a sentence, which
@@ -78,7 +84,8 @@ def markov_words(model, length, start_key=None):
 
 def build_word_model(corpus, n=2):
     """A special-case of build_model that knows how to build a model based on
-    words from a corpus given as a string or a file-like object."""
+    words from a corpus given as a string or a file-like object.
+    """
     return build_model(gen_words(corpus), n=n)
 
 
@@ -96,12 +103,14 @@ def gen_ngrams(xs, n=2):
 
 def gen_words(corpus):
     """Yields each word from the given corpus, which can be either a string or
-    a file-like object containing the words."""
+    a file-like object containing the words.
+    """
     if isinstance(corpus, basestring):
         corpus = (line for line in corpus.splitlines())
     for line in corpus:
         for word in line.strip().split():
             yield word
+
 
 if __name__ == '__main__':
     usage = """%s corpus [length]""" % sys.argv[0]
@@ -115,5 +124,9 @@ if __name__ == '__main__':
             length = int(sys.argv[2])
         except (IndexError, ValueError):
             length = 30
-        model = build_word_model(open(corpus))
-        print markov_words(model, length)
+        model = build_word_model(open(corpus), n=2)
+        try:
+            print markov_words(model, length)
+        except RuntimeError, e:
+            print 'Could not generate a chain with length %s.' % length,
+            print 'Please consider increasing the length.'
