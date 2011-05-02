@@ -15,6 +15,7 @@ from collections import defaultdict
 
 
 DEFAULT_NGRAM_SIZE = 2
+MIN_SENTENCE_LENGTH = 5
 
 
 ##############################################################################
@@ -88,7 +89,7 @@ def markov_words(model, length, start_key=None):
         chain = chain[:i+1]
 
     # Make sure we've got a reasonable-sized chain.
-    if len(chain) < 4:
+    if len(chain) < MIN_SENTENCE_LENGTH:
         return markov_words(model, length)
     else:
         return ' '.join(chain)
