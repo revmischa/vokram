@@ -109,7 +109,7 @@ def gen_words(corpus):
     a file-like object containing the words.
     """
     if isinstance(corpus, basestring):
-        corpus = (line for line in corpus.splitlines())
+        corpus = corpus.splitlines()
     for line in corpus:
         for word in line.strip().split():
             yield word
