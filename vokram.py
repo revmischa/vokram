@@ -185,14 +185,14 @@ def gen_ngrams(xs, n=DEFAULT_NGRAM_SIZE):
 
     # Build and yield the first n-gram. This is where the assumption of
     # len(xs) >= n needs to be true.
-    n_gram = tuple(it.next() for _ in xrange(n))
-    yield n_gram
+    ngram = tuple(it.next() for _ in xrange(n))
+    yield ngram
 
     # Each successive n-gram is built by dropping the first item of the
     # previous n-gram and appending the current element
     for x in it:
-        n_gram = n_gram[1:] + (x,)
-        yield n_gram
+        ngram = ngram[1:] + (x,)
+        yield ngram
 
 def gen_words(corpus):
     """Yields each word from the given corpus, which can be either a string or
