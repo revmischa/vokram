@@ -20,15 +20,22 @@ DEFAULT_NGRAM_SIZE = 2
 ##############################################################################
 # Basic interface
 ##############################################################################
+
 def markov_chain(model, length, start_key=None):
-    """Generates a Markov chain based on the given model with approximately
-    the given length.
+    """Generates a Markov chain with the given length based on the given
+    model. The chain will be returned as a list. If a starting key (in the
+    model) is not given, a random one will be chosen.
     """
     chain = []
     key = start_key or random.choice(model.keys())
     for _ in xrange(length):
+        # Add a random selection from the value corresponding to the current
+        # key to the chain.
         x = random.choice(model[key])
         chain.append(x)
+        # Pick the next key by dropping the first item in the current key and
+        # appending the current item (manually creating the n-gram that will
+        # let us choose the next appropriate item for our chain)
         key = key[1:] + (x,)
     return chain
 
@@ -47,6 +54,7 @@ def build_model(xs, n=DEFAULT_NGRAM_SIZE):
 ##############################################################################
 # Word-based interface
 ##############################################################################
+
 def markov_words(model, length, start_key=None):
     """Generates a Markov chain of the given length. Attempts to be
     intelligent about generating chains made up of what (hopefully) look like
@@ -95,19 +103,31 @@ def build_word_model(corpus, n=DEFAULT_NGRAM_SIZE):
 ##############################################################################
 # Utility functions
 ##############################################################################
+
 def gen_ngrams(xs, n=DEFAULT_NGRAM_SIZE):
-    """Yields n-grams from the given sequence. Assumes len(xs) >= n."""
+    """Yields n-grams from the given sequence. Assumes len(xs) >= n. N-grams
+    are yielded as tuples of length n.
+    """
+    # Explicitly capture an iterator over xs, because we'll need it twice
     it = iter(xs)
-    gram = tuple(it.next() for _ in xrange(n))
-    yield gram
+
+    # Build and yield the first n-gram. This is where the assumption of
+    # len(xs) >= n needs to be true.
+    n_gram = tuple(it.next() for _ in xrange(n))
+    yield n_gram
+
+    # Each successive n-gram is built by dropping the first item of the
+    # previous n-gram and appending the current element
     for x in it:
-        gram = gram[1:] + (x,)
-        yield gram
+        n_gram = n_gram[1:] + (x,)
+        yield n_gram
 
 def gen_words(corpus):
     """Yields each word from the given corpus, which can be either a string or
     a file-like object containing the words.
     """
+    # If we're given the corpus as a string, split it into lines so that we
+    # can iterate over it the same as we would an open file.
     if isinstance(corpus, basestring):
         corpus = corpus.splitlines()
     for line in corpus:
