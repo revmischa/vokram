@@ -100,7 +100,7 @@ def gen_ngrams(xs, n=DEFAULT_NGRAM_SIZE):
     it = iter(xs)
     gram = tuple(it.next() for _ in xrange(n))
     yield gram
-    for x in xs:
+    for x in it:
         gram = gram[1:] + (x,)
         yield gram
 
