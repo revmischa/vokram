@@ -208,11 +208,10 @@ def gen_words(corpus):
 
 
 if __name__ == '__main__':
-    usage = """%s corpus [length]""" % sys.argv[0]
     try:
         corpus = sys.argv[1]
     except IndexError:
-        print usage
+        print """%s corpus [length]""" % sys.argv[0]
         sys.exit(1)
     else:
         try:
@@ -225,3 +224,4 @@ if __name__ == '__main__':
         except RuntimeError, e:
             print 'Could not generate a chain with length %s.' % length,
             print 'Please consider increasing the length.'
+            sys.exit(1)
