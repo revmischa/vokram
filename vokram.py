@@ -13,40 +13,40 @@ for generating chains of words. A brief overview of how this works:
     corpus. The size of the n-grams is determined by the user, but currently
     defaults to 2.
 
-    So, taking this simple corpus as an example (where ">>>" represents the
+    So, taking this simple corpus as an example (where `>>>` represents the
     interactive Python prompt):
 
-      >>> corpus = [1, 2, 3, 2, 4, 5, 6, 2, 1, 3]
+        >>> corpus = [1, 2, 3, 2, 4, 5, 6, 2, 1, 3]
 
     The model, based on the default n-gram size of 2, would look like this:
 
-      >>> build_model(corpus)
-      {(1, 2): [3, 3, 4],
-       (2, 1): [2],
-       (2, 3): [1, 2],
-       (2, 4): [3],
-       (2, 5): [4],
-       (3, 1): [2],
-       (3, 2): [1, 5],
-       (4, 3): [2, 1],
-       (5, 4): [3]}
+        >>> build_model(corpus)
+        {(1, 2): [3, 3, 4],
+         (2, 1): [2],
+         (2, 3): [1, 2],
+         (2, 4): [3],
+         (2, 5): [4],
+         (3, 1): [2],
+         (3, 2): [1, 5],
+         (4, 3): [2, 1],
+         (5, 4): [3]}
 
     For reference, the model of the same corpus with an n-gram size of 3 would
     look like this:
 
-      >>> build_model(corpus, n=3)
-      {(1, 2, 3): [1, 2],
-       (1, 2, 4): [3],
-       (2, 1, 2): [4],
-       (2, 3, 1): [2],
-       (2, 3, 2): [1],
-       (2, 4, 3): [2],
-       (2, 5, 4): [3],
-       (3, 1, 2): [3],
-       (3, 2, 1): [2],
-       (3, 2, 5): [4],
-       (4, 3, 2): [5],
-       (5, 4, 3): [1]}
+        >>> build_model(corpus, n=3)
+        {(1, 2, 3): [1, 2],
+         (1, 2, 4): [3],
+         (2, 1, 2): [4],
+         (2, 3, 1): [2],
+         (2, 3, 2): [1],
+         (2, 4, 3): [2],
+         (2, 5, 4): [3],
+         (3, 1, 2): [3],
+         (3, 2, 1): [2],
+         (3, 2, 5): [4],
+         (4, 3, 2): [5],
+         (5, 4, 3): [1]}
 
  2. Once the model is built, we can use it to construct a Markov chain of (I
     think, though there's a decent chance I'm butchering some or all of these
@@ -54,28 +54,29 @@ for generating chains of words. A brief overview of how this works:
 
     The process for building a chain works like this:
 
-     a. Get a starting key in the model (chosen by the user or chosen
-        randomly). For our purposes, let's choose the key (2, 3) from the
-        first model above.
+    1. Get a starting key in the model (chosen by the user or chosen
+       randomly). For our purposes, let's choose the key `(2, 3)` from the
+       first model above.
 
-     b. Pick a random item from the list that our chosen key points to and add
-        it to our chain. Let's say we choose 2 from the list [1, 2].
+    2. Pick a random item from the list that our chosen key points to and add
+       it to our chain. Let's say we choose `2` from the list `[1, 2]`.
 
-     c. Build a new key by dropping the first item in our current key and
-        appending the item we chose in step b. This gives us a new key,
-        (3, 2).
+    3. Build a new key by dropping the first item in our current key and
+       appending the item we chose in step b. This gives us a new key,
+       `(3, 2)`.
 
-     d. Start over at step b, using our new key. In this example, we'd end up
-        choosing a random value from the list [1, 5] to add to our chain. Do
-        this until the chain has reached the desired length.
+    4. Start over at step b, using our new key. In this example, we'd end up
+       choosing a random value from the list `[1, 5]` to add to our chain. Do
+       this until the chain has reached the desired length.
 
-Note, there is a specialized markov_words version of the markov_chain function
-that tries to slightly better at generating Markov chains that make
+Note, there is a specialized `markov_words` version of the `markov_chain`
+function that tries to slightly better at generating Markov chains that make
 complete-ish sentences by trying to pick good starting keys and ensuring that
 the chain ends in some kind of "sentence-ending" punctuation.
 
-With inspiration from:
-http://code.activestate.com/recipes/194364-the-markov-chain-algorithm/
+With inspiration from [this Python implementation and explanation][0]
+
+[0]: http://code.activestate.com/recipes/194364-the-markov-chain-algorithm/
 """
 
 import os
@@ -88,9 +89,7 @@ DEFAULT_NGRAM_SIZE = 2
 MIN_SENTENCE_LENGTH = 5
 
 
-##############################################################################
-# Basic interface
-##############################################################################
+### Basic interface
 
 def markov_chain(model, length, start_key=None):
     """Generates a Markov chain with the given length based on the given
@@ -111,9 +110,9 @@ def markov_chain(model, length, start_key=None):
     return chain
 
 def build_model(xs, n=DEFAULT_NGRAM_SIZE):
-    """Builds a model of the given sequence using n-grams of size n. The model
-    is a dict mapping n-gram keys to lists of items appearing immediately
-    after those n-grams.
+    """Builds a model of the given sequence using n-grams of size `n`. The
+    model is a dict mapping qn-gram keys to lists of items appearing
+    immediately after those n-grams.
     """
     model = defaultdict(list)
     for ngram in gen_ngrams(xs, n+1):
@@ -122,9 +121,7 @@ def build_model(xs, n=DEFAULT_NGRAM_SIZE):
     return dict(model)
 
 
-##############################################################################
-# Word-based interface
-##############################################################################
+### Word-based interface
 
 def markov_words(model, length, start_key=None):
     """Generates a Markov chain of approximately the given length. Attempts to
@@ -172,19 +169,17 @@ def build_word_model(corpus, n=DEFAULT_NGRAM_SIZE):
     return build_model(gen_words(corpus), n=n)
 
 
-##############################################################################
-# Utility functions
-##############################################################################
+### Utility functions
 
 def gen_ngrams(xs, n=DEFAULT_NGRAM_SIZE):
-    """Yields n-grams from the given sequence. Assumes len(xs) >= n. N-grams
-    are yielded as tuples of length n.
+    """Yields n-grams from the given sequence. Assumes `len(xs) >= n`. N-grams
+    are yielded as tuples of length `n`.
     """
-    # Explicitly capture an iterator over xs, because we'll need it twice
+    # Explicitly capture an iterator over `xs`, because we'll need it twice
     it = iter(xs)
 
     # Build and yield the first n-gram. This is where the assumption of
-    # len(xs) >= n needs to be true.
+    # `len(xs) >= n` needs to be true.
     ngram = tuple(it.next() for _ in xrange(n))
     yield ngram
 
@@ -207,6 +202,19 @@ def gen_words(corpus):
             yield word
 
 
+### Command line interface
+# This module can be run from the command line to generate sentences from a
+# corpus of words. It has one required argument, the path to the corpus, and
+# one optional argument, the desired length of the sentence. It can be run
+# like so:
+#
+#     ./vokram.py path/to/corpus.txt
+#
+# or like:
+#
+#     ./vokram.py path/to/corpus.txt 50
+#
+# to generate a sentence of about 50 words.
 if __name__ == '__main__':
     try:
         corpus = sys.argv[1]
