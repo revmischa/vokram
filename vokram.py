@@ -79,10 +79,10 @@ With inspiration from [this Python implementation and explanation][0]
 [0]: http://code.activestate.com/recipes/194364-the-markov-chain-algorithm/
 """
 
-import os
+import argparse
+from collections import defaultdict
 import random
 import sys
-from collections import defaultdict
 
 
 DEFAULT_NGRAM_SIZE = 2
@@ -109,6 +109,7 @@ def markov_chain(model, length, start_key=None):
         key = key[1:] + (x,)
     return chain
 
+
 def build_model(xs, n=DEFAULT_NGRAM_SIZE):
     """Builds a model of the given sequence using n-grams of size `n`. The
     model is a dict mapping qn-gram keys to lists of items appearing
@@ -123,11 +124,13 @@ def build_model(xs, n=DEFAULT_NGRAM_SIZE):
 
 ### Word-based interface
 
-def markov_words(model, length, start_key=None):
-    """Generates a Markov chain of approximately the given length. Attempts to
-    be intelligent about generating chains made up of what (hopefully) look
-    like complete sentences, which means that the resulting sentence will
-    often have fewer than the desired number of words.
+def markov_words(model, num_words, start_key=None):
+    """Generates a Markov chain in the form of a sentence made up of
+    approximately the given number of words.
+
+    This attempts to be intelligent about generating chains made up of what
+    (hopefully) look like complete sentences, which means that the resulting
+    sentence will often have fewer than the desired number of words.
     """
 
     # An overly-simplistic heuristic to use to try to generate complete
@@ -149,18 +152,19 @@ def markov_words(model, length, start_key=None):
 
     # Make sure our chain seems to end at the end of a sentence, by dropping
     # any dangling words after the end of the last sentence in the chain.
-    chain = markov_chain(model, length, start_key)
+    chain = markov_chain(model, num_words, start_key)
     if chain[-1][-1] not in sentence_end:
-        for i in xrange(length-1, -1, -1):
+        for i in xrange(num_words-1, -1, -1):
             if chain[i][-1] in sentence_end:
                 break
         chain = chain[:i+1]
 
     # Make sure we've got a reasonable-sized chain.
     if len(chain) < MIN_SENTENCE_LENGTH:
-        return markov_words(model, length)
+        return markov_words(model, num_words)
     else:
         return ' '.join(chain)
+
 
 def build_word_model(corpus, n=DEFAULT_NGRAM_SIZE):
     """A special-case of build_model that knows how to build a model based on
@@ -189,47 +193,51 @@ def gen_ngrams(xs, n=DEFAULT_NGRAM_SIZE):
         ngram = ngram[1:] + (x,)
         yield ngram
 
+
 def gen_words(corpus):
-    """Yields each word from the given corpus, which can be either a string or
-    a file-like object containing the words.
+    """Yields each word from the given corpus, must be an iterator over lines
+    of strings.
     """
-    # If we're given the corpus as a string, split it into lines so that we
-    # can iterate over it the same as we would an open file.
-    if isinstance(corpus, basestring):
-        corpus = corpus.splitlines()
     for line in corpus:
         for word in line.strip().split():
             yield word
 
 
 ### Command line interface
+#
 # This module can be run from the command line to generate sentences from a
-# corpus of words. It has one required argument, the path to the corpus, and
-# one optional argument, the desired length of the sentence. It can be run
-# like so:
+# corpus of words provided on STDIN. It can be used like so:
 #
-#     ./vokram.py path/to/corpus.txt
+#     cat path/to/corpus.txt | ./vokram.py
 #
-# or like:
+# or like so, if you want to specify your own maximum sentence length and
+# n-gram size:
 #
-#     ./vokram.py path/to/corpus.txt 50
-#
-# to generate a sentence of about 50 words.
+#    cat path/to/corpus.txt | ./vokram.py --num-words=50 --ngram-size=4
 if __name__ == '__main__':
-    try:
-        corpus = sys.argv[1]
-    except IndexError:
-        print """%s corpus [length]""" % sys.argv[0]
+    arg_parser = argparse.ArgumentParser(
+        prog='vokram',
+        description='Generates plausible new sentences from a corpus provided '
+                    'on STDIN.')
+    arg_parser.add_argument(
+        '-w', '--num-words', type=int, default=30,
+        help='Maximum number of words in the resulting sentence.')
+    arg_parser.add_argument(
+        '-n', '--ngram-size', type=int, default=DEFAULT_NGRAM_SIZE)
+
+    args = arg_parser.parse_args()
+
+    # One way to check whether anything has been piped into STDIN, though I'm
+    # not sure how reliable this is.
+    if sys.stdin.isatty():
+        print >> sys.stderr, 'Error: corpus must be provided on STDIN.'
         sys.exit(1)
-    else:
-        try:
-            length = int(sys.argv[2])
-        except (IndexError, ValueError):
-            length = 30
-        model = build_word_model(open(corpus))
-        try:
-            print markov_words(model, length)
-        except RuntimeError, e:
-            print 'Could not generate a chain with length %s.' % length,
-            print 'Please consider increasing the length.'
-            sys.exit(1)
+
+    model = build_word_model(sys.stdin, n=args.ngram_size)
+    try:
+        print markov_words(model, args.num_words)
+    except RuntimeError, e:
+        msg = ('Error: Could not generate sentence with at least %d words.' %
+               MIN_SENTENCE_LENGTH)
+        print >> sys.stderr, msg
+        sys.exit(1)
