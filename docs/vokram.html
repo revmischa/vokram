@@ -4,211 +4,11 @@
 <head>
   <title>vokram.py</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-  <style type="text/css" media="screen">
-    /*--------------------- Layout and Typography ----------------------------*/
-    body {
-      font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
-      font-size: 15px;
-      line-height: 22px;
-      color: #252519;
-      margin: 0; padding: 0;
-    }
-    a {
-      color: #261a3b;
-    }
-      a:visited {
-        color: #261a3b;
-      }
-    p {
-      margin: 0 0 15px 0;
-    }
-    h1, h2, h3, h4, h5, h6 {
-      margin: 0px 0 15px 0;
-    }
-      h1 {
-        margin-top: 40px;
-      }
-    #container {
-      position: relative;
-    }
-    #background {
-      position: fixed;
-      top: 0; left: 525px; right: 0; bottom: 0;
-      background: #f5f5ff;
-      border-left: 1px solid #e5e5ee;
-      z-index: -1;
-    }
-    #jump_to, #jump_page {
-      background: white;
-      -webkit-box-shadow: 0 0 25px #777; -moz-box-shadow: 0 0 25px #777;
-      -webkit-border-bottom-left-radius: 5px; -moz-border-radius-bottomleft: 5px;
-      font: 10px Arial;
-      text-transform: uppercase;
-      cursor: pointer;
-      text-align: right;
-    }
-    #jump_to, #jump_wrapper {
-      position: fixed;
-      right: 0; top: 0;
-      padding: 5px 10px;
-    }
-      #jump_wrapper {
-        padding: 0;
-        display: none;
-      }
-        #jump_to:hover #jump_wrapper {
-          display: block;
-        }
-        #jump_page {
-          padding: 5px 0 3px;
-          margin: 0 0 25px 25px;
-        }
-          #jump_page .source {
-            display: block;
-            padding: 5px 10px;
-            text-decoration: none;
-            border-top: 1px solid #eee;
-          }
-            #jump_page .source:hover {
-              background: #f5f5ff;
-            }
-            #jump_page .source:first-child {
-            }
-    table td {
-      border: 0;
-      outline: 0;
-    }
-      td.docs, th.docs {
-        max-width: 450px;
-        min-width: 450px;
-        min-height: 5px;
-        padding: 10px 25px 1px 50px;
-        overflow-x: hidden;
-        vertical-align: top;
-        text-align: left;
-      }
-        .docs pre {
-          margin: 15px 0 15px;
-          padding-left: 15px;
-        }
-        .docs p tt, .docs p code {
-          background: #f8f8ff;
-          border: 1px solid #dedede;
-          font-size: 12px;
-          padding: 0 0.2em;
-        }
-        .pilwrap {
-          position: relative;
-        }
-          .pilcrow {
-            font: 12px Arial;
-            text-decoration: none;
-            color: #454545;
-            position: absolute;
-            top: 3px; left: -20px;
-            padding: 1px 2px;
-            opacity: 0;
-            -webkit-transition: opacity 0.2s linear;
-          }
-            td.docs:hover .pilcrow {
-              opacity: 1;
-            }
-      td.code, th.code {
-        padding: 14px 15px 16px 25px;
-        width: 100%;
-        vertical-align: top;
-        background: #f5f5ff;
-        border-left: 1px solid #e5e5ee;
-      }
-        pre, tt, code {
-          font-size: 12px; line-height: 18px;
-          font-family: Menlo, Monaco, Consolas, "Lucida Console", monospace;
-          margin: 0; padding: 0;
-        }
-
-    /*---------------------- Syntax Highlighting -----------------------------*/
-    td.linenos { background-color: #f0f0f0; padding-right: 10px; }
-    span.lineno { background-color: #f0f0f0; padding: 0 5px 0 5px; }
-    body .hll { background-color: #ffffcc }
-    body .c { color: #408080; font-style: italic }  /* Comment */
-    body .err { border: 1px solid #FF0000 }         /* Error */
-    body .k { color: #954121 }                      /* Keyword */
-    body .o { color: #666666 }                      /* Operator */
-    body .cm { color: #408080; font-style: italic } /* Comment.Multiline */
-    body .cp { color: #BC7A00 }                     /* Comment.Preproc */
-    body .c1 { color: #408080; font-style: italic } /* Comment.Single */
-    body .cs { color: #408080; font-style: italic } /* Comment.Special */
-    body .gd { color: #A00000 }                     /* Generic.Deleted */
-    body .ge { font-style: italic }                 /* Generic.Emph */
-    body .gr { color: #FF0000 }                     /* Generic.Error */
-    body .gh { color: #000080; font-weight: bold }  /* Generic.Heading */
-    body .gi { color: #00A000 }                     /* Generic.Inserted */
-    body .go { color: #808080 }                     /* Generic.Output */
-    body .gp { color: #000080; font-weight: bold }  /* Generic.Prompt */
-    body .gs { font-weight: bold }                  /* Generic.Strong */
-    body .gu { color: #800080; font-weight: bold }  /* Generic.Subheading */
-    body .gt { color: #0040D0 }                     /* Generic.Traceback */
-    body .kc { color: #954121 }                     /* Keyword.Constant */
-    body .kd { color: #954121; font-weight: bold }  /* Keyword.Declaration */
-    body .kn { color: #954121; font-weight: bold }  /* Keyword.Namespace */
-    body .kp { color: #954121 }                     /* Keyword.Pseudo */
-    body .kr { color: #954121; font-weight: bold }  /* Keyword.Reserved */
-    body .kt { color: #B00040 }                     /* Keyword.Type */
-    body .m { color: #666666 }                      /* Literal.Number */
-    body .s { color: #219161 }                      /* Literal.String */
-    body .na { color: #7D9029 }                     /* Name.Attribute */
-    body .nb { color: #954121 }                     /* Name.Builtin */
-    body .nc { color: #0000FF; font-weight: bold }  /* Name.Class */
-    body .no { color: #880000 }                     /* Name.Constant */
-    body .nd { color: #AA22FF }                     /* Name.Decorator */
-    body .ni { color: #999999; font-weight: bold }  /* Name.Entity */
-    body .ne { color: #D2413A; font-weight: bold }  /* Name.Exception */
-    body .nf { color: #0000FF }                     /* Name.Function */
-    body .nl { color: #A0A000 }                     /* Name.Label */
-    body .nn { color: #0000FF; font-weight: bold }  /* Name.Namespace */
-    body .nt { color: #954121; font-weight: bold }  /* Name.Tag */
-    body .nv { color: #19469D }                     /* Name.Variable */
-    body .ow { color: #AA22FF; font-weight: bold }  /* Operator.Word */
-    body .w { color: #bbbbbb }                      /* Text.Whitespace */
-    body .mf { color: #666666 }                     /* Literal.Number.Float */
-    body .mh { color: #666666 }                     /* Literal.Number.Hex */
-    body .mi { color: #666666 }                     /* Literal.Number.Integer */
-    body .mo { color: #666666 }                     /* Literal.Number.Oct */
-    body .sb { color: #219161 }                     /* Literal.String.Backtick */
-    body .sc { color: #219161 }                     /* Literal.String.Char */
-    body .sd { color: #219161; font-style: italic } /* Literal.String.Doc */
-    body .s2 { color: #219161 }                     /* Literal.String.Double */
-    body .se { color: #BB6622; font-weight: bold }  /* Literal.String.Escape */
-    body .sh { color: #219161 }                     /* Literal.String.Heredoc */
-    body .si { color: #BB6688; font-weight: bold }  /* Literal.String.Interpol */
-    body .sx { color: #954121 }                     /* Literal.String.Other */
-    body .sr { color: #BB6688 }                     /* Literal.String.Regex */
-    body .s1 { color: #219161 }                     /* Literal.String.Single */
-    body .ss { color: #19469D }                     /* Literal.String.Symbol */
-    body .bp { color: #954121 }                     /* Name.Builtin.Pseudo */
-    body .vc { color: #19469D }                     /* Name.Variable.Class */
-    body .vg { color: #19469D }                     /* Name.Variable.Global */
-    body .vi { color: #19469D }                     /* Name.Variable.Instance */
-    body .il { color: #666666 }                     /* Literal.Number.Integer.Long */
-
-    /* my customizations */
-    footer {
-      font-size: 12px;
-      padding: 5px 50px;
-      margin-top: 25px;
-      background-color: #fff;
-      border-top: 1px solid #e5e5ee;
-    }
-  </style>
+  <link rel="stylesheet" href="dycco.css">
 </head>
 <body>
   <div id="container">
     <div id="background"></div>
-    
-          </div>
-        </div>
-      </div>
-    
     <table cellpadding="0" cellspacing="0">
       <thead>
         <tr>
@@ -220,7 +20,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr id="section-2">
+          <tr id="section-2">
             <td class="docs">
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
@@ -308,7 +108,8 @@ the chain ends in some kind of "sentence-ending" punctuation.</p>
 </pre></div>
 
             </td>
-          </tr><tr id="section-81">
+          </tr>
+          <tr id="section-81">
             <td class="docs">
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-81">&#182;</a>
@@ -316,10 +117,10 @@ the chain ends in some kind of "sentence-ending" punctuation.</p>
               
             </td>
             <td class="code">
-              <div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
+              <div class="highlight"><pre><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 
 
 <span class="n">DEFAULT_NGRAM_SIZE</span> <span class="o">=</span> <span class="mi">2</span>
@@ -327,7 +128,8 @@ the chain ends in some kind of "sentence-ending" punctuation.</p>
 </pre></div>
 
             </td>
-          </tr><tr id="section-92">
+          </tr>
+          <tr id="section-92">
             <td class="docs">
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-92">&#182;</a>
@@ -339,7 +141,8 @@ the chain ends in some kind of "sentence-ending" punctuation.</p>
 </pre></div>
 
             </td>
-          </tr><tr id="section-93">
+          </tr>
+          <tr id="section-93">
             <td class="docs">
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-93">&#182;</a>
@@ -356,7 +159,8 @@ model) is not given, a random one will be chosen.</p>
 </pre></div>
 
             </td>
-          </tr><tr id="section-103">
+          </tr>
+          <tr id="section-103">
             <td class="docs">
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-103">&#182;</a>
@@ -370,7 +174,8 @@ model) is not given, a random one will be chosen.</p>
 </pre></div>
 
             </td>
-          </tr><tr id="section-108">
+          </tr>
+          <tr id="section-108">
             <td class="docs">
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-108">&#182;</a>
@@ -385,10 +190,11 @@ model) is not given, a random one will be chosen.</p>
 </pre></div>
 
             </td>
-          </tr><tr id="section-111">
+          </tr>
+          <tr id="section-112">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-111">&#182;</a>
+                <a class="pilcrow" href="#section-112">&#182;</a>
               </div>
               <p>Builds a model of the given sequence using n-grams of size <code>n</code>. The
 model is a dict mapping qn-gram keys to lists of items appearing
@@ -404,10 +210,11 @@ immediately after those n-grams.</p>
 </pre></div>
 
             </td>
-          </tr><tr id="section-124">
+          </tr>
+          <tr id="section-125">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-124">&#182;</a>
+                <a class="pilcrow" href="#section-125">&#182;</a>
               </div>
               <h2>Word-based interface</h2>
             </td>
@@ -416,25 +223,28 @@ immediately after those n-grams.</p>
 </pre></div>
 
             </td>
-          </tr><tr id="section-125">
+          </tr>
+          <tr id="section-126">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-125">&#182;</a>
+                <a class="pilcrow" href="#section-126">&#182;</a>
               </div>
-              <p>Generates a Markov chain of approximately the given length. Attempts to
-be intelligent about generating chains made up of what (hopefully) look
-like complete sentences, which means that the resulting sentence will
-often have fewer than the desired number of words.</p>
+              <p>Generates a Markov chain in the form of a sentence made up of
+approximately the given number of words.</p>
+<p>Attempts to be intelligent about generating chains made up of what
+(hopefully) look like complete sentences, which means that the resulting
+sentence will often have fewer than the desired number of words.</p>
             </td>
             <td class="code">
-              <div class="highlight"><pre><span class="k">def</span> <span class="nf">markov_words</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">start_key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+              <div class="highlight"><pre><span class="k">def</span> <span class="nf">markov_words</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">num_words</span><span class="p">,</span> <span class="n">start_key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 </pre></div>
 
             </td>
-          </tr><tr id="section-134">
+          </tr>
+          <tr id="section-137">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-134">&#182;</a>
+                <a class="pilcrow" href="#section-137">&#182;</a>
               </div>
               <p>An overly-simplistic heuristic to use to try to generate complete
  sentences</p>
@@ -444,10 +254,11 @@ often have fewer than the desired number of words.</p>
 </pre></div>
 
             </td>
-          </tr><tr id="section-139">
+          </tr>
+          <tr id="section-142">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-139">&#182;</a>
+                <a class="pilcrow" href="#section-142">&#182;</a>
               </div>
               <p>Find a start key that (hopefully) indicates the end of a sentence, which
  will make it more likely that our chain will start with a word from the
@@ -460,10 +271,11 @@ often have fewer than the desired number of words.</p>
 </pre></div>
 
             </td>
-          </tr><tr id="section-145">
+          </tr>
+          <tr id="section-148">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-145">&#182;</a>
+                <a class="pilcrow" href="#section-148">&#182;</a>
               </div>
               <p>Making sure the key ends in a period (instead of anything in
  sentence_end) seems to yield better results at the start of the
@@ -476,43 +288,46 @@ often have fewer than the desired number of words.</p>
 </pre></div>
 
             </td>
-          </tr><tr id="section-151">
+          </tr>
+          <tr id="section-154">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-151">&#182;</a>
+                <a class="pilcrow" href="#section-154">&#182;</a>
               </div>
               <p>Make sure our chain seems to end at the end of a sentence, by dropping
  any dangling words after the end of the last sentence in the chain.</p>
             </td>
             <td class="code">
-              <div class="highlight"><pre>    <span class="n">chain</span> <span class="o">=</span> <span class="n">markov_chain</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">start_key</span><span class="p">)</span>
+              <div class="highlight"><pre>    <span class="n">chain</span> <span class="o">=</span> <span class="n">markov_chain</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">num_words</span><span class="p">,</span> <span class="n">start_key</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">chain</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sentence_end</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">length</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">num_words</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">chain</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">sentence_end</span><span class="p">:</span>
                 <span class="k">break</span>
         <span class="n">chain</span> <span class="o">=</span> <span class="n">chain</span><span class="p">[:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
             </td>
-          </tr><tr id="section-159">
+          </tr>
+          <tr id="section-162">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-159">&#182;</a>
+                <a class="pilcrow" href="#section-162">&#182;</a>
               </div>
               <p>Make sure we've got a reasonable-sized chain.</p>
             </td>
             <td class="code">
               <div class="highlight"><pre>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">chain</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">MIN_SENTENCE_LENGTH</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">markov_words</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">markov_words</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">num_words</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chain</span><span class="p">)</span>
 </pre></div>
 
             </td>
-          </tr><tr id="section-164">
+          </tr>
+          <tr id="section-168">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-164">&#182;</a>
+                <a class="pilcrow" href="#section-168">&#182;</a>
               </div>
               <p>A special-case of build_model that knows how to build a model based on
 words from a corpus given as a string or a file-like object.</p>
@@ -523,10 +338,11 @@ words from a corpus given as a string or a file-like object.</p>
 </pre></div>
 
             </td>
-          </tr><tr id="section-172">
+          </tr>
+          <tr id="section-176">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-172">&#182;</a>
+                <a class="pilcrow" href="#section-176">&#182;</a>
               </div>
               <h2>Utility functions</h2>
             </td>
@@ -535,10 +351,11 @@ words from a corpus given as a string or a file-like object.</p>
 </pre></div>
 
             </td>
-          </tr><tr id="section-173">
+          </tr>
+          <tr id="section-177">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-173">&#182;</a>
+                <a class="pilcrow" href="#section-177">&#182;</a>
               </div>
               <p>Yields n-grams from the given sequence. Assumes <code>len(xs) &gt;= n</code>. N-grams
 are yielded as tuples of length <code>n</code>.</p>
@@ -548,10 +365,11 @@ are yielded as tuples of length <code>n</code>.</p>
 </pre></div>
 
             </td>
-          </tr><tr id="section-178">
+          </tr>
+          <tr id="section-182">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-178">&#182;</a>
+                <a class="pilcrow" href="#section-182">&#182;</a>
               </div>
               <p>Explicitly capture an iterator over <code>xs</code>, because we'll need it twice</p>
             </td>
@@ -560,10 +378,11 @@ are yielded as tuples of length <code>n</code>.</p>
 </pre></div>
 
             </td>
-          </tr><tr id="section-182">
+          </tr>
+          <tr id="section-186">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-182">&#182;</a>
+                <a class="pilcrow" href="#section-186">&#182;</a>
               </div>
               <p>Build and yield the first n-gram. This is where the assumption of
  <code>len(xs) &gt;= n</code> needs to be true.</p>
@@ -574,10 +393,11 @@ are yielded as tuples of length <code>n</code>.</p>
 </pre></div>
 
             </td>
-          </tr><tr id="section-187">
+          </tr>
+          <tr id="section-191">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-187">&#182;</a>
+                <a class="pilcrow" href="#section-191">&#182;</a>
               </div>
               <p>Each successive n-gram is built by dropping the first item of the
  previous n-gram and appending the current element</p>
@@ -589,72 +409,77 @@ are yielded as tuples of length <code>n</code>.</p>
 </pre></div>
 
             </td>
-          </tr><tr id="section-191">
+          </tr>
+          <tr id="section-196">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-191">&#182;</a>
+                <a class="pilcrow" href="#section-196">&#182;</a>
               </div>
-              <p>Yields each word from the given corpus, which can be either a string or
-a file-like object containing the words.</p>
+              <p>Yields each word from the given corpus, must be an iterator over lines
+of strings.</p>
             </td>
             <td class="code">
               <div class="highlight"><pre><span class="k">def</span> <span class="nf">gen_words</span><span class="p">(</span><span class="n">corpus</span><span class="p">):</span>
-</pre></div>
-
-            </td>
-          </tr><tr id="section-197">
-            <td class="docs">
-              <div class="pilwrap">
-                <a class="pilcrow" href="#section-197">&#182;</a>
-              </div>
-              <p>If we're given the corpus as a string, split it into lines so that we
- can iterate over it the same as we would an open file.</p>
-            </td>
-            <td class="code">
-              <div class="highlight"><pre>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
-        <span class="n">corpus</span> <span class="o">=</span> <span class="n">corpus</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">corpus</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
             <span class="k">yield</span> <span class="n">word</span>
 </pre></div>
 
             </td>
-          </tr><tr id="section-217">
+          </tr>
+          <tr id="section-216">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-217">&#182;</a>
+                <a class="pilcrow" href="#section-216">&#182;</a>
               </div>
               <h2>Command line interface</h2>
 <p>This module can be run from the command line to generate sentences from a
- corpus of words. It has one required argument, the path to the corpus, and
- one optional argument, the desired length of the sentence. It can be run
- like so:</p>
-<pre><code> ./vokram.py path/to/corpus.txt
+ corpus of words provided on STDIN. It can be used like so:</p>
+<pre><code> cat path/to/corpus.txt | ./vokram.py
 </code></pre>
-<p>or like:</p>
-<pre><code> ./vokram.py path/to/corpus.txt 50
+<p>or like so, if you want to specify your own maximum sentence length and
+ n-gram size:</p>
+<pre><code>cat path/to/corpus.txt | ./vokram.py --num-words=50 --ngram-size=4
 </code></pre>
-<p>to generate a sentence of about 50 words.</p>
             </td>
             <td class="code">
               <div class="highlight"><pre><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">corpus</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
-        <span class="k">print</span> <span class="s">&quot;&quot;&quot;</span><span class="si">%s</span><span class="s"> corpus [length]&quot;&quot;&quot;</span> <span class="o">%</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">arg_parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">prog</span><span class="o">=</span><span class="s">&#39;vokram&#39;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s">&#39;Generates plausible new sentences from a corpus provided &#39;</span>
+                    <span class="s">&#39;on STDIN.&#39;</span><span class="p">)</span>
+    <span class="n">arg_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s">&#39;-w&#39;</span><span class="p">,</span> <span class="s">&#39;--num-words&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s">&#39;Maximum number of words in the resulting sentence.&#39;</span><span class="p">)</span>
+    <span class="n">arg_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s">&#39;-n&#39;</span><span class="p">,</span> <span class="s">&#39;--ngram-size&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_NGRAM_SIZE</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">arg_parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+</pre></div>
+
+            </td>
+          </tr>
+          <tr id="section-231">
+            <td class="docs">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-231">&#182;</a>
+              </div>
+              <p>One way to check whether anything has been piped into STDIN, though I'm
+ not sure how reliable this is.</p>
+            </td>
+            <td class="code">
+              <div class="highlight"><pre>    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">isatty</span><span class="p">():</span>
+        <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#39;Error: corpus must be provided on STDIN.&#39;</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-            <span class="n">length</span> <span class="o">=</span> <span class="mi">30</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">build_word_model</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">corpus</span><span class="p">))</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">print</span> <span class="n">markov_words</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">print</span> <span class="s">&#39;Could not generate a chain with length </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span> <span class="n">length</span><span class="p">,</span>
-            <span class="k">print</span> <span class="s">&#39;Please consider increasing the length.&#39;</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">build_word_model</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">ngram_size</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">print</span> <span class="n">markov_words</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">num_words</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;Error: Could not generate sentence with at least </span><span class="si">%d</span><span class="s"> words.&#39;</span> <span class="o">%</span>
+               <span class="n">MIN_SENTENCE_LENGTH</span><span class="p">)</span>
+        <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="n">msg</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 
             </td>
@@ -662,8 +487,8 @@ a file-like object containing the words.</p>
       </tbody>
     </table>
     <footer>
-      Documentation generated by <b><a href="http://mccutchen.github.com/dycco/">Dycco</a></b>.
-      Last updated <b>13 May 2011</b>.
+      Generated by <b><a href="http://mccutchen.github.com/dycco/">Dycco</a></b>.
+      Last updated <b>20 Nov 2013</b>.
     </footer>
   </div>
 </body>
