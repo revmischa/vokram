@@ -79,6 +79,9 @@ With inspiration from [this Python implementation and explanation][0]
 [0]: http://code.activestate.com/recipes/194364-the-markov-chain-algorithm/
 """
 
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import argparse
 from collections import defaultdict
 import random
@@ -89,6 +92,14 @@ DEFAULT_NGRAM_SIZE = 2
 MIN_SENTENCE_LENGTH = 5
 
 
+# We want a range function that will return a generator, but xrange is gone in
+# Python 3. So, let's figure out what range function to use.
+try:
+    range_iter = xrange
+except NameError:
+    range_iter = range
+
+
 ### Basic interface
 
 def markov_chain(model, length, start_key=None):
@@ -97,8 +108,8 @@ def markov_chain(model, length, start_key=None):
     model) is not given, a random one will be chosen.
     """
     chain = []
-    key = start_key or random.choice(model.keys())
-    for _ in xrange(length):
+    key = start_key or random.choice(tuple(model.keys()))
+    for _ in range_iter(length):
         # Add a random selection from the value corresponding to the current
         # key to the chain.
         x = random.choice(model[key])
@@ -141,7 +152,7 @@ def markov_words(model, num_words, start_key=None):
     # will make it more likely that our chain will start with a word from the
     # beginning of a sentence.
     if start_key is None:
-        keys = model.keys()
+        keys = tuple(model.keys())
         key = random.choice(keys)
         # Making sure the key ends in a period (instead of anything in
         # sentence_end) seems to yield better results at the start of the
@@ -154,7 +165,7 @@ def markov_words(model, num_words, start_key=None):
     # any dangling words after the end of the last sentence in the chain.
     chain = markov_chain(model, num_words, start_key)
     if chain[-1][-1] not in sentence_end:
-        for i in xrange(num_words-1, -1, -1):
+        for i in range_iter(num_words-1, -1, -1):
             if chain[i][-1] in sentence_end:
                 break
         chain = chain[:i+1]
@@ -184,7 +195,7 @@ def gen_ngrams(xs, n=DEFAULT_NGRAM_SIZE):
 
     # Build and yield the first n-gram. This is where the assumption of
     # `len(xs) >= n` needs to be true.
-    ngram = tuple(it.next() for _ in xrange(n))
+    ngram = tuple(next(it) for _ in range_iter(n))
     yield ngram
 
     # Each successive n-gram is built by dropping the first item of the
@@ -230,14 +241,14 @@ if __name__ == '__main__':
     # One way to check whether anything has been piped into STDIN, though I'm
     # not sure how reliable this is.
     if sys.stdin.isatty():
-        print >> sys.stderr, 'Error: corpus must be provided on STDIN.'
+        print('Error: corpus must be provided on STDIN.', file=sys.stderr)
         sys.exit(1)
 
     model = build_word_model(sys.stdin, n=args.ngram_size)
     try:
-        print markov_words(model, args.num_words)
-    except RuntimeError, e:
+        print(markov_words(model, args.num_words))
+    except RuntimeError as e:
         msg = ('Error: Could not generate sentence with at least %d words.' %
                MIN_SENTENCE_LENGTH)
-        print >> sys.stderr, msg
+        print(msg, file=sys.stderr)
         sys.exit(1)
