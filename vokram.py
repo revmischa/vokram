@@ -16,37 +16,34 @@ for generating chains of words. A brief overview of how this works:
     So, taking this simple corpus as an example (where `>>>` represents the
     interactive Python prompt):
 
-        >>> corpus = [1, 2, 3, 2, 4, 5, 6, 2, 1, 3]
+        >>> corpus = [1, 2, 3, 1, 2, 1, 4, 5, 6, 1, 2, 1, 3]
 
     The model, based on the default n-gram size of 2, would look like this:
 
         >>> build_model(corpus)
-        {(1, 2): [3, 3, 4],
-         (2, 1): [2],
-         (2, 3): [1, 2],
-         (2, 4): [3],
-         (2, 5): [4],
+        {(1, 2): [3, 1, 1],
+         (1, 4): [5],
+         (2, 1): [4, 3],
+         (2, 3): [1],
          (3, 1): [2],
-         (3, 2): [1, 5],
-         (4, 3): [2, 1],
-         (5, 4): [3]}
+         (4, 5): [6],
+         (5, 6): [1],
+         (6, 1): [2]}
+
 
     For reference, the model of the same corpus with an n-gram size of 3 would
     look like this:
 
         >>> build_model(corpus, n=3)
-        {(1, 2, 3): [1, 2],
-         (1, 2, 4): [3],
-         (2, 1, 2): [4],
+        {(1, 2, 1): [4, 3],
+         (1, 2, 3): [1],
+         (1, 4, 5): [6],
+         (2, 1, 4): [5],
          (2, 3, 1): [2],
-         (2, 3, 2): [1],
-         (2, 4, 3): [2],
-         (2, 5, 4): [3],
-         (3, 1, 2): [3],
-         (3, 2, 1): [2],
-         (3, 2, 5): [4],
-         (4, 3, 2): [5],
-         (5, 4, 3): [1]}
+         (3, 1, 2): [1],
+         (4, 5, 6): [1],
+         (5, 6, 1): [2],
+         (6, 1, 2): [1]}
 
  2. Once the model is built, we can use it to construct a Markov chain of (I
     think, though there's a decent chance I'm butchering some or all of these
