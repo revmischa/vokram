@@ -38,35 +38,31 @@ corpus. The size of the n-grams is determined by the user, but currently
 defaults to 2.</p>
 <p>So, taking this simple corpus as an example (where <code>&gt;&gt;&gt;</code> represents the
 interactive Python prompt):</p>
-<pre><code>&gt;&gt;&gt; corpus = [1, 2, 3, 2, 4, 5, 6, 2, 1, 3]
+<pre><code>&gt;&gt;&gt; corpus = [1, 2, 3, 1, 2, 1, 4, 5, 6, 1, 2, 1, 3]
 </code></pre>
 <p>The model, based on the default n-gram size of 2, would look like this:</p>
 <pre><code>&gt;&gt;&gt; build_model(corpus)
-{(1, 2): [3, 3, 4],
- (2, 1): [2],
- (2, 3): [1, 2],
- (2, 4): [3],
- (2, 5): [4],
+{(1, 2): [3, 1, 1],
+ (1, 4): [5],
+ (2, 1): [4, 3],
+ (2, 3): [1],
  (3, 1): [2],
- (3, 2): [1, 5],
- (4, 3): [2, 1],
- (5, 4): [3]}
+ (4, 5): [6],
+ (5, 6): [1],
+ (6, 1): [2]}
 </code></pre>
 <p>For reference, the model of the same corpus with an n-gram size of 3 would
 look like this:</p>
 <pre><code>&gt;&gt;&gt; build_model(corpus, n=3)
-{(1, 2, 3): [1, 2],
- (1, 2, 4): [3],
- (2, 1, 2): [4],
+{(1, 2, 1): [4, 3],
+ (1, 2, 3): [1],
+ (1, 4, 5): [6],
+ (2, 1, 4): [5],
  (2, 3, 1): [2],
- (2, 3, 2): [1],
- (2, 4, 3): [2],
- (2, 5, 4): [3],
- (3, 1, 2): [3],
- (3, 2, 1): [2],
- (3, 2, 5): [4],
- (4, 3, 2): [5],
- (5, 4, 3): [1]}
+ (3, 1, 2): [1],
+ (4, 5, 6): [1],
+ (5, 6, 1): [2],
+ (6, 1, 2): [1]}
 </code></pre>
 </li>
 <li>
@@ -109,15 +105,18 @@ the chain ends in some kind of "sentence-ending" punctuation.</p>
 
             </td>
           </tr>
-          <tr id="section-81">
+          <tr id="section-78">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-81">&#182;</a>
+                <a class="pilcrow" href="#section-78">&#182;</a>
               </div>
               
             </td>
             <td class="code">
-              <div class="highlight"><pre><span class="kn">import</span> <span class="nn">argparse</span>
+              <div class="highlight"><pre><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">sys</span>
@@ -129,10 +128,27 @@ the chain ends in some kind of "sentence-ending" punctuation.</p>
 
             </td>
           </tr>
-          <tr id="section-92">
+          <tr id="section-93">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-92">&#182;</a>
+                <a class="pilcrow" href="#section-93">&#182;</a>
+              </div>
+              <p>We want a range function that will return a generator, but xrange is gone in
+ Python 3. So, let's figure out what range function to use.</p>
+            </td>
+            <td class="code">
+              <div class="highlight"><pre><span class="k">try</span><span class="p">:</span>
+    <span class="n">range_iter</span> <span class="o">=</span> <span class="nb">xrange</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+    <span class="n">range_iter</span> <span class="o">=</span> <span class="nb">range</span>
+</pre></div>
+
+            </td>
+          </tr>
+          <tr id="section-100">
+            <td class="docs">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-100">&#182;</a>
               </div>
               <h2>Basic interface</h2>
             </td>
@@ -142,10 +158,10 @@ the chain ends in some kind of "sentence-ending" punctuation.</p>
 
             </td>
           </tr>
-          <tr id="section-93">
+          <tr id="section-101">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-93">&#182;</a>
+                <a class="pilcrow" href="#section-101">&#182;</a>
               </div>
               <p>Generates a Markov chain with the given length based on the given
 model. The chain will be returned as a list. If a starting key (in the
@@ -154,16 +170,16 @@ model) is not given, a random one will be chosen.</p>
             <td class="code">
               <div class="highlight"><pre><span class="k">def</span> <span class="nf">markov_chain</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">start_key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="n">chain</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">key</span> <span class="o">=</span> <span class="n">start_key</span> <span class="ow">or</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">start_key</span> <span class="ow">or</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">range_iter</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
 </pre></div>
 
             </td>
           </tr>
-          <tr id="section-103">
+          <tr id="section-111">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-103">&#182;</a>
+                <a class="pilcrow" href="#section-111">&#182;</a>
               </div>
               <p>Add a random selection from the value corresponding to the current
  key to the chain.</p>
@@ -175,10 +191,10 @@ model) is not given, a random one will be chosen.</p>
 
             </td>
           </tr>
-          <tr id="section-108">
+          <tr id="section-116">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-108">&#182;</a>
+                <a class="pilcrow" href="#section-116">&#182;</a>
               </div>
               <p>Pick the next key by dropping the first item in the current key and
  appending the current item (manually creating the n-gram that will
@@ -191,10 +207,10 @@ model) is not given, a random one will be chosen.</p>
 
             </td>
           </tr>
-          <tr id="section-112">
+          <tr id="section-120">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-112">&#182;</a>
+                <a class="pilcrow" href="#section-120">&#182;</a>
               </div>
               <p>Builds a model of the given sequence using n-grams of size <code>n</code>. The
 model is a dict mapping qn-gram keys to lists of items appearing
@@ -203,7 +219,7 @@ immediately after those n-grams.</p>
             <td class="code">
               <div class="highlight"><pre><span class="k">def</span> <span class="nf">build_model</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">DEFAULT_NGRAM_SIZE</span><span class="p">):</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">ngram</span> <span class="ow">in</span> <span class="n">gen_ngrams</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">ngram</span> <span class="ow">in</span> <span class="n">gen_ngrams</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
         <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="o">=</span> <span class="n">ngram</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ngram</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">model</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
@@ -211,10 +227,10 @@ immediately after those n-grams.</p>
 
             </td>
           </tr>
-          <tr id="section-125">
+          <tr id="section-133">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-125">&#182;</a>
+                <a class="pilcrow" href="#section-133">&#182;</a>
               </div>
               <h2>Word-based interface</h2>
             </td>
@@ -224,14 +240,14 @@ immediately after those n-grams.</p>
 
             </td>
           </tr>
-          <tr id="section-126">
+          <tr id="section-134">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-126">&#182;</a>
+                <a class="pilcrow" href="#section-134">&#182;</a>
               </div>
               <p>Generates a Markov chain in the form of a sentence made up of
 approximately the given number of words.</p>
-<p>Attempts to be intelligent about generating chains made up of what
+<p>This attempts to be intelligent about generating chains made up of what
 (hopefully) look like complete sentences, which means that the resulting
 sentence will often have fewer than the desired number of words.</p>
             </td>
@@ -241,10 +257,10 @@ sentence will often have fewer than the desired number of words.</p>
 
             </td>
           </tr>
-          <tr id="section-137">
+          <tr id="section-145">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-137">&#182;</a>
+                <a class="pilcrow" href="#section-145">&#182;</a>
               </div>
               <p>An overly-simplistic heuristic to use to try to generate complete
  sentences</p>
@@ -255,10 +271,10 @@ sentence will often have fewer than the desired number of words.</p>
 
             </td>
           </tr>
-          <tr id="section-142">
+          <tr id="section-150">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-142">&#182;</a>
+                <a class="pilcrow" href="#section-150">&#182;</a>
               </div>
               <p>Find a start key that (hopefully) indicates the end of a sentence, which
  will make it more likely that our chain will start with a word from the
@@ -266,16 +282,16 @@ sentence will often have fewer than the desired number of words.</p>
             </td>
             <td class="code">
               <div class="highlight"><pre>    <span class="k">if</span> <span class="n">start_key</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">keys</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="n">key</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
 </pre></div>
 
             </td>
           </tr>
-          <tr id="section-148">
+          <tr id="section-156">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-148">&#182;</a>
+                <a class="pilcrow" href="#section-156">&#182;</a>
               </div>
               <p>Making sure the key ends in a period (instead of anything in
  sentence_end) seems to yield better results at the start of the
@@ -289,10 +305,10 @@ sentence will often have fewer than the desired number of words.</p>
 
             </td>
           </tr>
-          <tr id="section-154">
+          <tr id="section-162">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-154">&#182;</a>
+                <a class="pilcrow" href="#section-162">&#182;</a>
               </div>
               <p>Make sure our chain seems to end at the end of a sentence, by dropping
  any dangling words after the end of the last sentence in the chain.</p>
@@ -300,18 +316,18 @@ sentence will often have fewer than the desired number of words.</p>
             <td class="code">
               <div class="highlight"><pre>    <span class="n">chain</span> <span class="o">=</span> <span class="n">markov_chain</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">num_words</span><span class="p">,</span> <span class="n">start_key</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">chain</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sentence_end</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">num_words</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">range_iter</span><span class="p">(</span><span class="n">num_words</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">chain</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">sentence_end</span><span class="p">:</span>
                 <span class="k">break</span>
-        <span class="n">chain</span> <span class="o">=</span> <span class="n">chain</span><span class="p">[:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">chain</span> <span class="o">=</span> <span class="n">chain</span><span class="p">[:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
             </td>
           </tr>
-          <tr id="section-162">
+          <tr id="section-170">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-162">&#182;</a>
+                <a class="pilcrow" href="#section-170">&#182;</a>
               </div>
               <p>Make sure we've got a reasonable-sized chain.</p>
             </td>
@@ -324,10 +340,10 @@ sentence will often have fewer than the desired number of words.</p>
 
             </td>
           </tr>
-          <tr id="section-168">
+          <tr id="section-176">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-168">&#182;</a>
+                <a class="pilcrow" href="#section-176">&#182;</a>
               </div>
               <p>A special-case of build_model that knows how to build a model based on
 words from a corpus given as a string or a file-like object.</p>
@@ -339,10 +355,10 @@ words from a corpus given as a string or a file-like object.</p>
 
             </td>
           </tr>
-          <tr id="section-176">
+          <tr id="section-184">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-176">&#182;</a>
+                <a class="pilcrow" href="#section-184">&#182;</a>
               </div>
               <h2>Utility functions</h2>
             </td>
@@ -352,10 +368,10 @@ words from a corpus given as a string or a file-like object.</p>
 
             </td>
           </tr>
-          <tr id="section-177">
+          <tr id="section-185">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-177">&#182;</a>
+                <a class="pilcrow" href="#section-185">&#182;</a>
               </div>
               <p>Yields n-grams from the given sequence. Assumes <code>len(xs) &gt;= n</code>. N-grams
 are yielded as tuples of length <code>n</code>.</p>
@@ -366,10 +382,10 @@ are yielded as tuples of length <code>n</code>.</p>
 
             </td>
           </tr>
-          <tr id="section-182">
+          <tr id="section-190">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-182">&#182;</a>
+                <a class="pilcrow" href="#section-190">&#182;</a>
               </div>
               <p>Explicitly capture an iterator over <code>xs</code>, because we'll need it twice</p>
             </td>
@@ -379,25 +395,25 @@ are yielded as tuples of length <code>n</code>.</p>
 
             </td>
           </tr>
-          <tr id="section-186">
+          <tr id="section-194">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-186">&#182;</a>
+                <a class="pilcrow" href="#section-194">&#182;</a>
               </div>
               <p>Build and yield the first n-gram. This is where the assumption of
  <code>len(xs) &gt;= n</code> needs to be true.</p>
             </td>
             <td class="code">
-              <div class="highlight"><pre>    <span class="n">ngram</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">next</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+              <div class="highlight"><pre>    <span class="n">ngram</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">range_iter</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
     <span class="k">yield</span> <span class="n">ngram</span>
 </pre></div>
 
             </td>
           </tr>
-          <tr id="section-191">
+          <tr id="section-199">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-191">&#182;</a>
+                <a class="pilcrow" href="#section-199">&#182;</a>
               </div>
               <p>Each successive n-gram is built by dropping the first item of the
  previous n-gram and appending the current element</p>
@@ -410,10 +426,10 @@ are yielded as tuples of length <code>n</code>.</p>
 
             </td>
           </tr>
-          <tr id="section-196">
+          <tr id="section-204">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-196">&#182;</a>
+                <a class="pilcrow" href="#section-204">&#182;</a>
               </div>
               <p>Yields each word from the given corpus, must be an iterator over lines
 of strings.</p>
@@ -427,10 +443,10 @@ of strings.</p>
 
             </td>
           </tr>
-          <tr id="section-216">
+          <tr id="section-224">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-216">&#182;</a>
+                <a class="pilcrow" href="#section-224">&#182;</a>
               </div>
               <h2>Command line interface</h2>
 <p>This module can be run from the command line to generate sentences from a
@@ -459,26 +475,26 @@ of strings.</p>
 
             </td>
           </tr>
-          <tr id="section-231">
+          <tr id="section-239">
             <td class="docs">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-231">&#182;</a>
+                <a class="pilcrow" href="#section-239">&#182;</a>
               </div>
               <p>One way to check whether anything has been piped into STDIN, though I'm
  not sure how reliable this is.</p>
             </td>
             <td class="code">
               <div class="highlight"><pre>    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">isatty</span><span class="p">():</span>
-        <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#39;Error: corpus must be provided on STDIN.&#39;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Error: corpus must be provided on STDIN.&#39;</span><span class="p">,</span> <span class="nb">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="n">model</span> <span class="o">=</span> <span class="n">build_word_model</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">ngram_size</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">print</span> <span class="n">markov_words</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">num_words</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">markov_words</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">num_words</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;Error: Could not generate sentence with at least </span><span class="si">%d</span><span class="s"> words.&#39;</span> <span class="o">%</span>
                <span class="n">MIN_SENTENCE_LENGTH</span><span class="p">)</span>
-        <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="n">msg</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="nb">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 
@@ -488,7 +504,7 @@ of strings.</p>
     </table>
     <footer>
       Generated by <b><a href="http://mccutchen.github.com/dycco/">Dycco</a></b>.
-      Last updated <b>20 Nov 2013</b>.
+      Last updated <b>16 Dec 2013</b>.
     </footer>
   </div>
 </body>
