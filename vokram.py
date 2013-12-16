@@ -124,7 +124,7 @@ def build_model(xs, n=DEFAULT_NGRAM_SIZE):
     immediately after those n-grams.
     """
     model = defaultdict(list)
-    for ngram in gen_ngrams(xs, n+1):
+    for ngram in gen_ngrams(xs, n + 1):
         key, item = ngram[:-1], ngram[-1]
         model[key].append(item)
     return dict(model)
@@ -162,10 +162,10 @@ def markov_words(model, num_words, start_key=None):
     # any dangling words after the end of the last sentence in the chain.
     chain = markov_chain(model, num_words, start_key)
     if chain[-1][-1] not in sentence_end:
-        for i in range_iter(num_words-1, -1, -1):
+        for i in range_iter(num_words - 1, -1, -1):
             if chain[i][-1] in sentence_end:
                 break
-        chain = chain[:i+1]
+        chain = chain[:i + 1]
 
     # Make sure we've got a reasonable-sized chain.
     if len(chain) < MIN_SENTENCE_LENGTH:
