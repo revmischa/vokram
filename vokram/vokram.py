@@ -70,10 +70,6 @@ Note, there is a specialized `markov_words` version of the `markov_chain`
 function that tries to slightly better at generating Markov chains that make
 complete-ish sentences by trying to pick good starting keys and ensuring that
 the chain ends in some kind of "sentence-ending" punctuation.
-
-With inspiration from [this Python implementation and explanation][0]
-
-[0]: http://code.activestate.com/recipes/194364-the-markov-chain-algorithm/
 """
 
 from __future__ import unicode_literals
