@@ -76,17 +76,10 @@ With inspiration from [this Python implementation and explanation][0]
 [0]: http://code.activestate.com/recipes/194364-the-markov-chain-algorithm/
 """
 
-from __future__ import print_function
 from __future__ import unicode_literals
 
-import argparse
 from collections import defaultdict
 import random
-import sys
-
-
-DEFAULT_NGRAM_SIZE = 2
-MIN_SENTENCE_LENGTH = 5
 
 
 # We want a range function that will return a generator, but xrange is gone in
@@ -118,7 +111,7 @@ def markov_chain(model, length, start_key=None):
     return chain
 
 
-def build_model(xs, n=DEFAULT_NGRAM_SIZE):
+def build_model(xs, n):
     """Builds a model of the given sequence using n-grams of size `n`. The
     model is a dict mapping qn-gram keys to lists of items appearing
     immediately after those n-grams.
@@ -167,14 +160,10 @@ def markov_words(model, num_words, start_key=None):
                 break
         chain = chain[:i + 1]
 
-    # Make sure we've got a reasonable-sized chain.
-    if len(chain) < MIN_SENTENCE_LENGTH:
-        return markov_words(model, num_words)
-    else:
-        return ' '.join(chain)
+    return ' '.join(chain)
 
 
-def build_word_model(corpus, n=DEFAULT_NGRAM_SIZE):
+def build_word_model(corpus, n):
     """A special-case of build_model that knows how to build a model based on
     words from a corpus given as a string or a file-like object.
     """
@@ -183,7 +172,7 @@ def build_word_model(corpus, n=DEFAULT_NGRAM_SIZE):
 
 ### Utility functions
 
-def gen_ngrams(xs, n=DEFAULT_NGRAM_SIZE):
+def gen_ngrams(xs, n):
     """Yields n-grams from the given sequence. Assumes `len(xs) >= n`. N-grams
     are yielded as tuples of length `n`.
     """
@@ -209,43 +198,3 @@ def gen_words(corpus):
     for line in corpus:
         for word in line.strip().split():
             yield word
-
-
-### Command line interface
-#
-# This module can be run from the command line to generate sentences from a
-# corpus of words provided on STDIN. It can be used like so:
-#
-#     cat path/to/corpus.txt | ./vokram.py
-#
-# or like so, if you want to specify your own maximum sentence length and
-# n-gram size:
-#
-#    cat path/to/corpus.txt | ./vokram.py --num-words=50 --ngram-size=4
-if __name__ == '__main__':
-    arg_parser = argparse.ArgumentParser(
-        prog='vokram',
-        description='Generates plausible new sentences from a corpus provided '
-                    'on STDIN.')
-    arg_parser.add_argument(
-        '-w', '--num-words', type=int, default=30,
-        help='Maximum number of words in the resulting sentence.')
-    arg_parser.add_argument(
-        '-n', '--ngram-size', type=int, default=DEFAULT_NGRAM_SIZE)
-
-    args = arg_parser.parse_args()
-
-    # One way to check whether anything has been piped into STDIN, though I'm
-    # not sure how reliable this is.
-    if sys.stdin.isatty():
-        print('Error: corpus must be provided on STDIN.', file=sys.stderr)
-        sys.exit(1)
-
-    model = build_word_model(sys.stdin, n=args.ngram_size)
-    try:
-        print(markov_words(model, args.num_words))
-    except RuntimeError as e:
-        msg = ('Error: Could not generate sentence with at least %d words.' %
-               MIN_SENTENCE_LENGTH)
-        print(msg, file=sys.stderr)
-        sys.exit(1)
