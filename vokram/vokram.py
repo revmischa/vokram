@@ -106,12 +106,17 @@ def markov_chain(model, start_key=None):
         key = key[1:] + (x,)
 
 
-def build_model(xs, n):
+def build_model(xs, n, sentinal=None):
     """Builds a model of the given sequence using n-grams of size `n`. The
     model is a dict mapping n-gram keys to lists of items appearing
     immediately after those n-grams.
+
+    The sequence will be padded on either end with `n` elements of the given
+    `sentinal` value to ensure a complete model.
     """
     model = defaultdict(list)
+    padding = [sentinal] * n
+    xs = itertools.chain(padding, xs, padding)
     for ngram in gen_ngrams(xs, n + 1):
         key, item = ngram[:-1], ngram[-1]
         model[key].append(item)
