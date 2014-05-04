@@ -8,7 +8,7 @@ def read(fname):
 
 setup(
     name='vokram',
-    version='1.0.0',
+    version='1.0.1',
     description='A toy Markov chain implementation.',
     long_description=read('README.rst'),
     url='https://github.com/mccutchen/vokram',

@@ -1,1 +1,3 @@
+v1.0.1, 2014-05-04 -- Misc. tweaks (markov_chain is now a generator, input sequence is now padded)
+
 v1.0.0, 2014-05-03 -- Initial release.
