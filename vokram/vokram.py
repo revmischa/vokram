@@ -75,6 +75,7 @@ the chain ends in some kind of "sentence-ending" punctuation.
 from __future__ import unicode_literals
 
 from collections import defaultdict
+import itertools
 import random
 
 
@@ -88,28 +89,26 @@ except NameError:
 
 ### Basic interface
 
-def markov_chain(model, length, start_key=None):
-    """Generates a Markov chain with the given length based on the given
-    model. The chain will be returned as a list. If a starting key (in the
-    model) is not given, a random one will be chosen.
+def markov_chain(model, start_key=None):
+    """Generates a Markov chain based on the given model. Links in the chain
+    will be yielded until a new link can't be found. If a starting key (which
+    must be in the model) is not given, a random one will be chosen.
     """
-    chain = []
     key = start_key or random.choice(tuple(model.keys()))
-    for _ in range_iter(length):
+    while True:
         # Add a random selection from the value corresponding to the current
         # key to the chain.
         x = random.choice(model[key])
-        chain.append(x)
+        yield x
         # Pick the next key by dropping the first item in the current key and
         # appending the current item (manually creating the n-gram that will
         # let us choose the next appropriate item for our chain)
         key = key[1:] + (x,)
-    return chain
 
 
 def build_model(xs, n):
     """Builds a model of the given sequence using n-grams of size `n`. The
-    model is a dict mapping qn-gram keys to lists of items appearing
+    model is a dict mapping n-gram keys to lists of items appearing
     immediately after those n-grams.
     """
     model = defaultdict(list)
@@ -147,16 +146,20 @@ def markov_words(model, num_words, start_key=None):
             key = random.choice(keys)
         start_key = key
 
-    # Make sure our chain seems to end at the end of a sentence, by dropping
-    # any dangling words after the end of the last sentence in the chain.
-    chain = markov_chain(model, num_words, start_key)
-    if chain[-1][-1] not in sentence_end:
-        for i in range_iter(num_words - 1, -1, -1):
-            if chain[i][-1] in sentence_end:
-                break
-        chain = chain[:i + 1]
+    # Build a list of `num_words` words from the model.
+    chain = markov_chain(model, start_key)
+    words = list(itertools.islice(chain, num_words))
 
-    return ' '.join(chain)
+    # Make sure our series of words seems to end at the end of a sentence, by
+    # dropping any dangling words after the last sentence-ending word we can
+    # find.
+    if words[-1][-1] not in sentence_end:
+        for i in range_iter(num_words - 1, -1, -1):
+            if words[i][-1] in sentence_end:
+                break
+        words = words[:i + 1]
+
+    return ' '.join(words)
 
 
 def build_word_model(corpus, n):
