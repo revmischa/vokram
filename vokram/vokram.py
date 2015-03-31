@@ -89,6 +89,59 @@ except NameError:
 
 ### Basic interface
 
+class Vokram:
+    def __init__(self, width=3,sentinal=None):
+        self.width = width
+        self.sentinal = sentinal
+        self.model = defaultdict(list)
+
+    def add_words(self, item):
+        sentinal = self.sentinal
+        n = self.width
+        xs = gen_words(item)
+
+        padding = [sentinal] * n
+        xs = itertools.chain(padding, xs, padding)
+
+        #xss = [x for x in xs]
+        #print "len: " , len(xss)
+
+        for ngram in gen_ngrams(xs, n + 1):
+            if not len(ngram):
+                continue
+            key, item = ngram[:-1], ngram[-1]
+            self.model[key].append(item)
+
+        # padding = [self.sentinal] * n
+        # words = [ngram for ngram in gen_words(item)]
+        # # print words
+        # # self.model.append(gen_words(item))
+        # ngrams = gen_ngrams(words, n + 1)
+        # for ngram in ngrams:
+        #     print "ngram: " , ngram
+        #     key, words = ngram[:-1], ngram[-1]
+        #     words = itertools.chain(padding, words, padding)
+        #     print "key: " , key , " words: " , words
+        #     self.model[key].append(words)
+
+    def markov_chain(self, **kwargs):
+        return markov_chain(self._model(), **kwargs)
+
+    def markov_words(self, num_words, **kwargs):
+        # print "Model: " , self.model
+        return markov_words(self._model(), num_words, **kwargs)
+
+    def _model(self):
+        m = list(self.model)
+        model = []
+        for item in self.model:
+            items = build_model_items(item, self.width, sentinal=self.sentinal)
+            # print "items: ", items
+            model.append([item, items])
+        print model
+        return dict(model)
+        #return build_model(self.model, self.width, sentinal=self.sentinal)
+
 def markov_chain(model, start_key=None):
     """Generates a Markov chain based on the given model. Links in the chain
     will be yielded until a new link can't be found. If a starting key (which
@@ -105,6 +158,14 @@ def markov_chain(model, start_key=None):
         # let us choose the next appropriate item for our chain)
         key = key[1:] + (x,)
 
+def build_model_items(xs, n, sentinal=None):
+    model = defaultdict(list)
+    padding = [sentinal] * n
+    xs = itertools.chain(padding, xs, padding)
+    for ngram in gen_ngrams(xs, n + 1):
+        key, item = ngram[:-1], ngram[-1]
+        model[key].append(item)
+    return model
 
 def build_model(xs, n, sentinal=None):
     """Builds a model of the given sequence using n-grams of size `n`. The
@@ -114,12 +175,7 @@ def build_model(xs, n, sentinal=None):
     The sequence will be padded on either end with `n` elements of the given
     `sentinal` value to ensure a complete model.
     """
-    model = defaultdict(list)
-    padding = [sentinal] * n
-    xs = itertools.chain(padding, xs, padding)
-    for ngram in gen_ngrams(xs, n + 1):
-        key, item = ngram[:-1], ngram[-1]
-        model[key].append(item)
+    model = build_model_items(xs, n, sentinal=None)
     return dict(model)
 
 
@@ -147,9 +203,12 @@ def markov_words(model, num_words, start_key=None):
         # Making sure the key ends in a period (instead of anything in
         # sentence_end) seems to yield better results at the start of the
         # chain.
-        while not key[-1][-1] == '.':
+        # print "key[-1]: ", key[-1]
+        # print "key[-1][-1]: ", key[-1][-1]
+        while key[-1] and not key[-1][-1] == '.':
             key = random.choice(keys)
         start_key = key
+    print "start_key: ", start_key
 
     # Build a list of `num_words` words from the model.
     chain = markov_chain(model, start_key)
@@ -158,12 +217,14 @@ def markov_words(model, num_words, start_key=None):
     # Make sure our series of words seems to end at the end of a sentence, by
     # dropping any dangling words after the last sentence-ending word we can
     # find.
-    if words[-1][-1] not in sentence_end:
+    if words[-1] and words[-1][-1] not in sentence_end:
+        # if words[i] == None: # quick hack to detect sentinal            
         for i in range_iter(num_words - 1, -1, -1):
             if words[i][-1] in sentence_end:
                 break
         words = words[:i + 1]
 
+    print "words: ", words
     return ' '.join(words)
 
 
@@ -171,7 +232,7 @@ def build_word_model(corpus, n):
     """A special-case of build_model that knows how to build a model based on
     words from a corpus given as a string or a file-like object.
     """
-    return build_model(gen_words(corpus), n=n)
+    return build_model(gen_lines(corpus), n=n)
 
 
 ### Utility functions
@@ -194,11 +255,16 @@ def gen_ngrams(xs, n):
         ngram = ngram[1:] + (x,)
         yield ngram
 
+def gen_lines(corpus):
+    """Yields each word from the given corpus.
+    """
+    for line in corpus:
+        for word in gen_words(corpus):
+            yield word
 
 def gen_words(corpus):
     """Yields each word from the given corpus, must be an iterator over lines
     of strings.
     """
-    for line in corpus:
-        for word in line.strip().split():
-            yield word
+    for word in corpus.strip().split():
+        yield word
